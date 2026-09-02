@@ -11,7 +11,11 @@ services:
     name: window-measure
     env: node
     plan: free
-    buildCommand: cd client && npm install && npm run build && cd ../server && npm install
+    # --include=dev on the client install: NODE_ENV=production (set below)
+    # is present during the build too, and npm skips devDependencies under
+    # it by default — which is where vite lives. Without this flag the
+    # build fails with "vite: not found".
+    buildCommand: cd client && npm install --include=dev && npm run build && cd ../server && npm install
     startCommand: node server/index.js
     healthCheckPath: /api/health
     envVars:
