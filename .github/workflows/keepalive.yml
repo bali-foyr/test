@@ -1,0 +1,16 @@
+name: Keep Render service alive
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint
+        run: |
+          URL="${{ vars.RENDER_APP_URL || 'https://window-measure.onrender.com' }}/api/health"
+          echo "Pinging $URL"
+          curl -sf --max-time 20 "$URL" || echo "Ping failed (service may be cold-starting)"
