@@ -1,3 +1,5 @@
+const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const pinoHttp = require('pino-http');
@@ -19,6 +21,14 @@ app.use('/api/fabrics', fabricsRouter);
 app.use('/api/visits', visitsRouter);
 app.use('/api', roomsRouter);
 app.use('/api', windowsRouter);
+
+// Serve the built frontend as one deployable service, when present
+// (local dev uses the separate Vite dev server + proxy instead).
+const clientDist = path.join(__dirname, '../client/dist');
+if (fs.existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+  app.get(/^(?!\/api).*/, (req, res) => res.sendFile(path.join(clientDist, 'index.html')));
+}
 
 app.use((err, req, res, next) => {
   req.log.error({ err }, 'unhandled error');

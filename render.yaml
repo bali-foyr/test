@@ -1,0 +1,22 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploy: render.com dashboard -> New -> Blueprint -> connect this repo.
+# Requires a paid plan (Starter or above) because free-tier services
+# cannot attach a persistent disk, and this app needs one for its
+# SQLite file to survive restarts/deploys.
+services:
+  - type: web
+    name: window-measure
+    env: node
+    plan: starter
+    buildCommand: cd client && npm install && npm run build && cd ../server && npm install
+    startCommand: node server/index.js
+    healthCheckPath: /api/health
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: DB_PATH
+        value: /data/measure.db
+      - key: NODE_ENV
+        value: production
